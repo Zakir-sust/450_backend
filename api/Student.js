@@ -79,9 +79,10 @@ const transport = nodemailer.createTransport({
 });
 
 const ip = require('../ip')
-
+console.log('ip = ',ip)
 const sendConfirmationEmail = (name, email, secret) => {
-    console.log("Check ", secret, user, email, pass);
+    // console.log("Check ", secret, user, email, pass);
+    console.log('ip = ',ip)
     transport.sendMail({
         from: user,
         to: email,
@@ -169,7 +170,7 @@ router.post('/add', upload.single('avatar'), async(req, res) => {
                 newStudent.secret
             );
         })
-        console.log('Student', newStudent)
+        // console.log('Student', newStudent)
         res.status(200).send(newStudent)
     } catch (e) {
         console.log(e.message)
@@ -190,7 +191,7 @@ router.post('/addd', upload.single('avatar'), async(req, res) => {
     const session = req.body.session
     const status = true
     const secret = await jwt.sign({ email: email }, 'thisisnewstudent')
-    console.log(name, email, phone, university, department, registration_number, )
+    // console.log(name, email, phone, university, department, registration_number, )
     let f = 0
 
     try {
@@ -209,7 +210,7 @@ router.post('/addd', upload.single('avatar'), async(req, res) => {
         res.status(200).send('student exists')
         return
     }
-    console.log('request', JSON.stringify(req.body), req.body.files, req.file)
+    // console.log('request', JSON.stringify(req.body), req.body.files, req.file)
     let image
     try {
         image = await cloudinary.uploader.upload(req.file.path, {
