@@ -1,1 +1,1 @@
-module.exports.ip = 'https://arcane-tor-03387.herokuapp.com'
+module.exports.ip = 'http://localhost:5000'

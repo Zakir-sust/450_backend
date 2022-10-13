@@ -57,7 +57,7 @@ const sendConfirmationEmail = (name, email, secret) => {
           <h1>Email Confirmation</h1>
           <h2>Hello ${name}</h2>
           <p>Thank you for subscribing. Please confirm your email by clicking on the following link</p>
-          <p>http://localhost:5000/approveT/${secret}</p>
+          <p>${ip}/approveT/${secret}</p>
           </div>`,
     }).catch(async(err) => {
         console.log('error occurred', err)
