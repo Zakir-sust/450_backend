@@ -26,7 +26,7 @@ router.post('/add', async(req, res) => {
     try {
         console.log('bydate data',bydate)
         await bydate.save();
-        res.status(200).send({ bydate })
+        res.status(200).send(bydate)
     } catch (e) {
         res.status(400).send(e);
     }

@@ -27,32 +27,67 @@ router.route('/srr').get((req, res) => {
         .catch(err => res.status(400).json('Error: ' + err));
 })
 
-router.route('/sr').patch((req, res) => {
+router.route('/sr').patch(async(req, res) => {
     const course_id = req.query.course_id;
     const section = req.query.section;
     const registration_number = req.query.registration_number;
-    Byreg.find({ course_id: course_id, section: section, registration_number: registration_number })
-        .then(byreg => {
-            console.log('by registration', byreg)
-            byreg.map(async br => {
-                arr = br.record
-                console.log('arr', arr, req.body)
-                arr = arr.filter(ele => req.body.date != ele.date)
-                arr.push(req.body)
-                console.log(arr)
-                const chg = { record: arr }
-                console.log('chg', chg, br._id)
-                try {
-                    const bg = await Byreg.findByIdAndUpdate(br._id, chg, { new: true, runValidators: true })
-                    if (!bg)
-                        return res.status(404).send()
-                    res.status(200).send(bg)
-                } catch (e) {
-                    res.status(500).send(e.message)
-                }
-            })
-        })
-        .catch(err => res.status(400).json('Error: ' + err));
+    let br
+    try{
+        const res=await Byreg.findOne({ course_id: course_id, section: section, registration_number: registration_number })
+        console.log('one data',res)
+        br=res
+    }catch(e){
+        console.log('got an errroroor init')
+        res.status(500).send(e.message)
+        return
+
+    }
+    let arr = br.record
+    console.log('arr', arr, req.body)
+    arr = arr.filter(ele => req.body.date != ele.date)
+    arr.push(req.body)
+    console.log('getting error data',arr)
+    const chg = { record: arr }
+    console.log('chg', chg, br._id)
+    try {
+        console.log('came here')
+        const bg = await Byreg.findByIdAndUpdate(br._id, chg, { new: true, runValidators: true })
+        if (!bg){
+            res.status(404).send('not found')
+            return
+        }
+        res.status(200).send(bg)
+        console.log('got my bg data',bg)
+    } catch (e) {
+        console.log('got an errroroor')
+        res.status(500).send(e.message)
+    }
+
+    // Byreg.find({ course_id: course_id, section: section, registration_number: registration_number })
+    //     .then(byreg => {
+    //         console.log('by registration', byreg)
+    //         byreg.map(async br => {
+    //             arr = br.record
+    //             console.log('arr', arr, req.body)
+    //             arr = arr.filter(ele => req.body.date != ele.date)
+    //             arr.push(req.body)
+    //             console.log('getting error data',arr)
+    //             const chg = { record: arr }
+    //             console.log('chg', chg, br._id)
+    //             try {
+    //                 console.log('came here')
+    //                 const bg = await Byreg.findByIdAndUpdate(br._id, chg, { new: true, runValidators: true })
+    //                 if (!bg)
+    //                     return res.status(404).send()
+    //                 res.status(200).send(bg)
+    //                 console.log('got my bg data',bg)
+    //             } catch (e) {
+    //                 console.log('got an errroroor')
+    //                 res.status(500).send(e.message)
+    //             }
+    //         })
+    //     })
+    //     .catch(err => res.status(400).json('Error: ' + err));
 })
 
 router.route('/regd').patch((req, res) => {
@@ -82,9 +117,70 @@ router.route('/regd').patch((req, res) => {
 })
 
 
+router.route('/srd').patch(async(req, res) => {
+    const course_id = req.query.course_id;
+    const section = req.query.section;
+    const registration_number = req.query.registration_number;
+    let br
+    try{
+        const res=await Byreg.findOne({ course_id: course_id, section: section, registration_number: registration_number })
+        console.log('one data',res)
+        br=res
+    }catch(e){
+        console.log('got an errroroor init')
+        res.status(500).send(e.message)
+        return    
+
+    }
+    let arr = br.record
+    console.log('arr', arr, req.body)
+    arr = arr.filter(ele => req.body.date != ele.date)
+    console.log('getting error data',arr)
+    const chg = { record: arr }
+    console.log('chg', chg, br._id)
+    try {
+        console.log('came here')
+        const bg = await Byreg.findByIdAndUpdate(br._id, chg, { new: true, runValidators: true })
+        if (!bg){
+            res.status(404).send('not found')
+            return
+        }
+        res.status(200).send(bg)
+        console.log('got my bg data',bg)
+    } catch (e) {
+        console.log('got an errroroor')
+        res.status(500).send(e.message)
+    }
+
+    // Byreg.find({ course_id: course_id, section: section, registration_number: registration_number })
+    //     .then(byreg => {
+    //         console.log('by registration', byreg)
+    //         byreg.map(async br => {
+    //             arr = br.record
+    //             console.log('arr', arr, req.body)
+    //             arr = arr.filter(ele => req.body.date != ele.date)
+    //             arr.push(req.body)
+    //             console.log('getting error data',arr)
+    //             const chg = { record: arr }
+    //             console.log('chg', chg, br._id)
+    //             try {
+    //                 console.log('came here')
+    //                 const bg = await Byreg.findByIdAndUpdate(br._id, chg, { new: true, runValidators: true })
+    //                 if (!bg)
+    //                     return res.status(404).send()
+    //                 res.status(200).send(bg)
+    //                 console.log('got my bg data',bg)
+    //             } catch (e) {
+    //                 console.log('got an errroroor')
+    //                 res.status(500).send(e.message)
+    //             }
+    //         })
+    //     })
+    //     .catch(err => res.status(400).json('Error: ' + err));
+})
 
 
-router.route('/srd').patch((req, res) => {
+/*router.route('/srd').patch((req, res) => {
     const course_id = req.query.course_id;
     const section = req.query.section;
     const registration_number = req.query.registration_number;
@@ -109,7 +205,7 @@ router.route('/srd').patch((req, res) => {
             })
         })
         .catch(err => res.status(400).json('Error: ' + err));
-})
+})*/
 
 
 router.post('/add', async(req, res) => {
