@@ -20,6 +20,9 @@ connection.once('open', () => {
     console.log("Connection established")
 })
 
+app.use('/',(req,res)=>{
+    res.send("You are at root directory");
+})
 const studentRouter = require('./api/Student.js');
 app.use('/student', studentRouter);
 
