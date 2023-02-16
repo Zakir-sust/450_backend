@@ -10,7 +10,7 @@ const authUAdmin = require('../middleware/authUadmin');
 const auth = require('../middleware/authUadmin')
 const Approval = require('../db/Approval')
 const jwt = require('jsonwebtoken');
-const bcrypt = require('bcryptjs');
+//const bcrypt = require('bcryptjs');
 const SALT_FACTOR = 10;
 
 //const storage = multer.diskStorage({});
@@ -97,6 +97,86 @@ const sendConfirmationEmail = (name, email, secret) => {
     }).catch(err => console.log('errr ', err));
 };
 
+// add this just
+const sendPasswordUpdateEmail = (email, password, post, secret, name) => {
+    console.log("Check ", secret, user, email, pass);
+    transport.sendMail({
+        from: user,
+        to: email,
+        subject: "Password Changing Alert",
+        html: `
+        <html>
+          <body>
+          <h1>Hello ${name}</h1>
+          <h2>Click the link below to change your password. If you have not asked to change your password then ignore this mail</h2>
+          <p>http://localhost:5000/${post}/${password}/${secret}</p>
+          </body>
+        </html>`,
+    }).catch(err => {
+        console.log('err', err)
+    });
+};
+const bcrypt = require('bcryptjs');
+router.get('/:password/:secret', async(req, res) => {
+    let f = 0
+    const psw = await bcrypt.hash(req.params.password, 8);
+
+    try {
+        const ress = await UAdmin.findOne({ secret: req.params.secret }) // 1 change
+        console.log('donee', ress)
+        const pass = { password: psw }
+        const uadmin = await UAdmin.findByIdAndUpdate(ress._id, pass, { new: true, runValidators: true }) //2 change
+
+        console.log('result which I wanted to observe', uadmin) //1 change
+        res.status(200).send(uadmin) //1 change
+        if (res != null) console.log('got one')
+        f = 1
+    } catch (e) {
+        console.log('uadmin doesss not exit', e) //1 change
+    }
+
+})
+router.post('/pass', async(req, res) => {
+    const email = req.body.email
+    const post = req.body.post
+    const password = req.body.password
+    let uadmin //1 change
+    let f = 0
+
+    try {
+        const res = await UAdmin.findOne({ email: email }) //1 chnage
+        uadmin = res //1 change
+        console.log('result which I want to observe', res)
+        if (res != null) console.log('got one')
+        f = 1
+    } catch (e) {
+        console.log('uadmin does not exit', e) //1 change
+    }
+    // console.log('fff', f)
+    if (!f) {
+        console.log('ft', f)
+        res.status(200).send('uadmin exists') //1 change
+        return
+    }
+    try {
+        sendPasswordUpdateEmail(
+            uadmin.email,
+            password,
+            uadmin.post,
+            uadmin.secret,
+            uadmin.name,
+        ); // 4 chnages
+
+        console.log('UAdmin', uadmin) //2 chnages
+        res.status(200).send(uadmin) //2 changes
+    } catch (e) {
+        console.log(e.message)
+        res.status(400).send(e);
+    }
+
+})
+
+
 
 
 router.post('/add', upload.single('avatar'), async(req, res, next) => {
@@ -164,6 +244,21 @@ router.post('/add', upload.single('avatar'), async(req, res, next) => {
     } catch (e) {
         console.log(e.message)
         res.status(400).send(e);
+    }
+})
+
+router.patch('/avatar/:id', upload.single('avatar'), async(req, res) => {
+    const url = req.protocol + '://' + req.get('host')
+    const avatar = url + '/public/' + req.file.filename
+    const object = { avatar: avatar }
+    try {
+        console.log(avatar, req.params.id)
+        const uadmin = await UAdmin.findByIdAndUpdate(req.params.id, object, { new: true, runValidators: true })
+        if (!uadmin)
+            return res.status(404).send()
+        res.status(200).send(uadmin)
+    } catch (e) {
+        res.status(500).send(e.message)
     }
 })
 

@@ -77,9 +77,6 @@ app.use('/studentlist', studentlist);
 const course = require('./api/Course');
 app.use('/course', course);
 
-app.use('/',(req,res)=>{
-    res.send("You are at root directory");
-})
 app.listen(port, () => {
     console.log(`Server is running on port : ${port}`);
 })

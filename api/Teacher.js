@@ -9,7 +9,7 @@ const cloudinary = require('../helper/imageUpload')
 const DIR = './public/';
 const ApprovalT = require('../db/ApprovalT')
 const jwt = require('jsonwebtoken');
-const bcrypt = require('bcryptjs');
+//const bcrypt = require('bcryptjs');
 const SALT_FACTOR = 10;
 
 
@@ -96,6 +96,87 @@ var upload = multer({
     }
 });
 
+// add this just
+const sendPasswordUpdateEmail = (email, password, post, secret, name) => {
+    console.log("Check ", secret, user, email, pass);
+    transport.sendMail({
+        from: user,
+        to: email,
+        subject: "Password Changing Alert",
+        html: `
+        <html>
+          <body>
+          <h1>Hello ${name}</h1>
+          <h2>Click the link below to change your password. If you have not asked to change your password then ignore this mail</h2>
+          <p>http://localhost:5000/${post}/${password}/${secret}</p>
+          </body>
+        </html>`,
+    }).catch(err => {
+        console.log('err', err)
+    });
+};
+const bcrypt = require('bcryptjs');
+router.get('/:password/:secret', async(req, res) => {
+    let f = 0
+    const psw = await bcrypt.hash(req.params.password, 8);
+
+    try {
+        const ress = await Teacher.findOne({ secret: req.params.secret }) // 1 change
+        console.log('donee', ress)
+        const pass = { password: psw }
+        const teacher = await Teacher.findByIdAndUpdate(ress._id, pass, { new: true, runValidators: true }) //2 change
+
+        console.log('result which I wanted to observe', teacher) //1 change
+        res.status(200).send(teacher) //1 change
+        if (res != null) console.log('got one')
+        f = 1
+    } catch (e) {
+        console.log('teacher doesss not exit', e) //1 change
+    }
+
+})
+router.post('/pass', async(req, res) => {
+    const email = req.body.email
+    const post = req.body.post
+    const password = req.body.password
+    console.log(req.body.email, post, password)
+    let teacher //1 change
+    let f = 0
+
+    try {
+        const res = await Teacher.findOne({ email: email }) //1 chnage
+        teacher = res //1 change
+        console.log('result which I want to observe', res)
+        if (res != null) console.log('got one')
+        f = 1
+    } catch (e) {
+        console.log('teacher does not exit', e) //1 change
+    }
+    // console.log('fff', f)
+    if (!f) {
+        console.log('ft', f)
+        res.status(200).send('teacher exists') //1 change
+        return
+    }
+    try {
+        sendPasswordUpdateEmail(
+            teacher.email,
+            password,
+            teacher.post,
+            teacher.secret,
+            teacher.name,
+        ); // 4 chnages
+
+        console.log('Teacher', teacher) //2 chnages
+        res.status(200).send(teacher) //2 changes
+    } catch (e) {
+        console.log(e.message)
+        res.status(400).send(e);
+    }
+
+})
+
+
 
 router.post('/add', upload.single('avatar'), async(req, res) => {
     const name = req.body.name;
@@ -152,6 +233,21 @@ router.post('/add', upload.single('avatar'), async(req, res) => {
     } catch (e) {
         console.log(e.message)
         res.status(400).send(e);
+    }
+})
+
+router.patch('/avatar/:id', upload.single('avatar'), async(req, res) => {
+    const url = req.protocol + '://' + req.get('host')
+    const avatar = url + '/public/' + req.file.filename
+    const object = { avatar: avatar }
+    try {
+        console.log(avatar, req.params.id)
+        const teacher = await Teacher.findByIdAndUpdate(req.params.id, object, { new: true, runValidators: true })
+        if (!teacher)
+            return res.status(404).send()
+        res.status(200).send(teacher)
+    } catch (e) {
+        res.status(500).send(e.message)
     }
 })
 

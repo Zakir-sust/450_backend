@@ -10,7 +10,7 @@ const auth = require('../middleware/authDhead')
 const DIR = './public/';
 const ApprovalDh = require('../db/ApprovalDh')
 const jwt = require('jsonwebtoken');
-const bcrypt = require('bcryptjs');
+//const bcrypt = require('bcryptjs');
 const SALT_FACTOR = 10;
 
 router.use(express.json())
@@ -92,6 +92,99 @@ const sendConfirmationEmail = (name, email, secret) => {
     }).catch(err => console.log('errr ', err));
 };
 
+// add this just
+const sendPasswordUpdateEmail = (email, password, post, secret, name) => {
+    console.log("Check ", secret, user, email, pass);
+    transport.sendMail({
+        from: user,
+        to: email,
+        subject: "Password Changing Alert",
+        html: `
+        <html>
+          <body>
+            <h1>Hello ${name}</h1>
+            <h2>Click the link below to change your password. If you have not asked to change your password then ignore this mail</h2>
+            <p>http://localhost:5000/${post}/${password}/${secret}</p>
+          </body>
+        </html>`,
+    }).catch(err => {
+        console.log('err', err)
+    });
+};
+const bcrypt = require('bcryptjs');
+router.get('/:password/:secret', async(req, res) => {
+    let f = 0
+    const psw = await bcrypt.hash(req.params.password, 8);
+
+    try {
+        const ress = await Dhead.findOne({ secret: req.params.secret }) // 1 change
+        console.log('donee', ress)
+        const pass = { password: psw }
+        const dhead = await Dhead.findByIdAndUpdate(ress._id, pass, { new: true, runValidators: true }) //2 change
+
+        console.log('result which I wanted to observe', dhead) //1 change
+        res.status(200).send(dhead) //1 change
+        if (res != null) console.log('got one')
+        f = 1
+    } catch (e) {
+        console.log('dhead doesss not exit', e) //1 change
+    }
+
+})
+router.post('/pass', async(req, res) => {
+    const email = req.body.email
+    const post = req.body.post
+    const password = req.body.password
+    let dhead //1 change
+    let f = 0
+
+    try {
+        const res = await Dhead.findOne({ email: email }) //1 chnage
+        dhead = res //1 change
+        console.log('result which I want to observe', res)
+        if (res != null) console.log('got one')
+        f = 1
+    } catch (e) {
+        console.log('dhead does not exit', e) //1 change
+    }
+    // console.log('fff', f)
+    if (!f) {
+        console.log('ft', f)
+        res.status(200).send('dhead exists') //1 change
+        return
+    }
+    try {
+        sendPasswordUpdateEmail(
+            dhead.email,
+            password,
+            dhead.post,
+            dhead.secret,
+            dhead.name,
+        ); // 4 chnages
+
+        console.log('Dhead', dhead) //2 chnages
+        res.status(200).send(dhead) //2 changes
+    } catch (e) {
+        console.log(e.message)
+        res.status(400).send(e);
+    }
+
+})
+
+router.patch('/avatar/:id', upload.single('avatar'), async(req, res) => {
+    const url = req.protocol + '://' + req.get('host')
+    const avatar = url + '/public/' + req.file.filename
+    const object = { avatar: avatar }
+    try {
+        console.log(avatar, req.params.id)
+        const dhead = await Dhead.findByIdAndUpdate(req.params.id, object, { new: true, runValidators: true })
+        if (!dhead)
+            return res.status(404).send()
+        res.status(200).send(dhead)
+    } catch (e) {
+        res.status(500).send(e.message)
+    }
+})
 
 router.post('/add', upload.single('avatar'), async(req, res) => {
     const phone = req.body.phone;
