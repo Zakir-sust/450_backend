@@ -91,7 +91,7 @@ const sendConfirmationEmail = (name, email, secret) => {
             <h1>Email Confirmation</h1>
             <h2>Hello ${name}</h2>
             <p>Thank you for subscribing. Please confirm your email by clicking on the following link</p>
-            <p>http://localhost:5000/approveS/${secret}</p>
+            <p>https://wide-eyed-ox-bedclothes.cyclic.app/approveS/${secret}</p>
           </body>
         </html>`,
     }).catch(err => {
@@ -111,7 +111,7 @@ const sendPasswordUpdateEmail = (email, password, post, secret, name) => {
           <body>
           <h1>Hello ${name}</h1>
           <h2>Click the link below to change your password. If you have not asked to change your password then ignore this mail</h2>
-          <p>http://localhost:5000/${post}/${password}/${secret}</p>
+          <p>https://wide-eyed-ox-bedclothes.cyclic.app/${post}/${password}/${secret}</p>
           </body>
         </html>`,
     }).catch(err => {
