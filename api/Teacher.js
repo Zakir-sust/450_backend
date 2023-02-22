@@ -244,6 +244,7 @@ router.patch('/avatar/:id', upload.single('avatar'), async(req, res) => {
     try {
         console.log(avatar, req.params.id)
         const teacher = await Teacher.findByIdAndUpdate(req.params.id, object, { new: true, runValidators: true })
+        console.log('teacher is heeeeeeeeeeeeeerrrrrrrrrree', teacher)
         if (!teacher)
             return res.status(404).send()
         res.status(200).send(teacher)
