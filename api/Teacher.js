@@ -249,7 +249,7 @@ router.patch('/avatar/:id', upload.single('avatar'), async(req, res) => {
             return res.status(404).send()
         res.status(200).send(teacher)
     } catch (e) {
-        res.status(500).send({ url, avatar })
+        res.status(500).send(avatar)
 
     }
 })
