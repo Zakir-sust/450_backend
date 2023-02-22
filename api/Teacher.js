@@ -240,6 +240,7 @@ router.patch('/avatar/:id', upload.single('avatar'), async(req, res) => {
     const url = req.protocol + '://' + req.get('host')
     const avatar = url + '/public/' + req.file.filename
     const object = { avatar: avatar }
+    console.log(url, avatar, object)
     try {
         console.log(avatar, req.params.id)
         const teacher = await Teacher.findByIdAndUpdate(req.params.id, object, { new: true, runValidators: true })
