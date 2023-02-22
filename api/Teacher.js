@@ -240,9 +240,9 @@ router.patch('/avatar/:id', upload.single('avatar'), async(req, res) => {
     const url = req.protocol + '://' + req.get('host')
     const avatar = url + '/public/' + req.file.filename
     const object = { avatar: avatar }
-    console.log(url, avatar, object)
+    console.log('test', url, avatar, object)
     try {
-        console.log(avatar, req.params.id)
+        console.log('test2', avatar, req.params.id)
         const teacher = await Teacher.findByIdAndUpdate(req.params.id, object, { new: true, runValidators: true })
         console.log('teacher is heeeeeeeeeeeeeerrrrrrrrrree', teacher)
         if (!teacher)
@@ -250,6 +250,7 @@ router.patch('/avatar/:id', upload.single('avatar'), async(req, res) => {
         res.status(200).send(teacher)
     } catch (e) {
         res.status(500).send(e.message)
+
     }
 })
 
