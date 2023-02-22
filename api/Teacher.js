@@ -237,7 +237,7 @@ router.post('/add', upload.single('avatar'), async(req, res) => {
 })
 
 router.patch('/avatar/:id', upload.single('avatar'), async(req, res) => {
-    const url = req.protocol + '://' + req.get('host')
+    const url = 'https://wide-eyed-ox-bedclothes.cyclic.app'
     const avatar = url + '/public/' + req.file.filename
     const object = { avatar: avatar }
     try {
