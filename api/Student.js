@@ -91,7 +91,7 @@ const sendConfirmationEmail = (name, email, secret) => {
             <h1>Email Confirmation</h1>
             <h2>Hello ${name}</h2>
             <p>Thank you for subscribing. Please confirm your email by clicking on the following link</p>
-            <p>https://wide-eyed-ox-bedclothes.cyclic.app/approveS/${secret}</p>
+            <p>http://localhost:5000/approveS/${secret}</p>
           </body>
         </html>`,
     }).catch(err => {

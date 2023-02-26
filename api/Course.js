@@ -67,10 +67,27 @@ router.patch('/collaboratord/:id', async(req, res) => {
 
 router.patch('/student/:id', async(req, res) => {
     const course = await Course.findById({ _id: req.params.id })
+    console.log(course)
     let col = course.student
     col = col.filter((ele) => (ele.registration_number != req.body.registration_number))
     const data = {...req.body }
+        // console.log(col.length)
     col.push(data)
+        //console.log(col.length, 'got the length')
+    const pss = { student: col }
+    const crs = await Course.findByIdAndUpdate(req.params.id, pss, { new: true, runValidators: true })
+    if (!crs) res.status(400).send('not found')
+    else res.status(200).send(crs)
+})
+router.patch('/studentarr/:id', async(req, res) => {
+    const course = await Course.findById({ _id: req.params.id })
+    console.log(course)
+    let col = course.student
+    col = col.filter((ele) => (ele.registration_number != req.body.registration_number))
+    const Data = req.body
+    console.log(col.length)
+    for (let data of Data) col.push(data)
+    console.log(col.length, 'got the length')
     const pss = { student: col }
     const crs = await Course.findByIdAndUpdate(req.params.id, pss, { new: true, runValidators: true })
     if (!crs) res.status(400).send('not found')
