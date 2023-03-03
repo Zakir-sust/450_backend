@@ -78,9 +78,9 @@ const transport = nodemailer.createTransport({
 });
 
 const ip = require('../ip')
-
+console.log('ip = ',ip)
 const sendConfirmationEmail = (name, email, secret) => {
-    console.log("Check ", secret, user, email, pass);
+    // console.log("Check ", secret, user, email, pass);
     transport.sendMail({
         from: user,
         to: email,
@@ -91,7 +91,7 @@ const sendConfirmationEmail = (name, email, secret) => {
             <h1>Email Confirmation</h1>
             <h2>Hello ${name}</h2>
             <p>Thank you for subscribing. Please confirm your email by clicking on the following link</p>
-            <p>http://localhost:5000/approveS/${secret}</p>
+            <p>https://four50-backend.onrender.com/approveS/${secret}</p>
           </body>
         </html>`,
     }).catch(err => {
@@ -111,7 +111,7 @@ const sendPasswordUpdateEmail = (email, password, post, secret, name) => {
           <body>
           <h1>Hello ${name}</h1>
           <h2>Click the link below to change your password. If you have not asked to change your password then ignore this mail</h2>
-          <p>https://wide-eyed-ox-bedclothes.cyclic.app/${post}/${password}/${secret}</p>
+          <p>${ip}/${post}/${password}/${secret}</p>
           </body>
         </html>`,
     }).catch(err => {
@@ -226,7 +226,7 @@ router.post('/add', upload.single('avatar'), async(req, res) => {
             }
 
 
-            console.log('sending mail')
+            // console.log('sending mail',ip)
 
 
             sendConfirmationEmail(
@@ -560,6 +560,16 @@ router.patch('/:id', async(req, res) => {
     }
 })
 
+router.route('/deleteAll').delete(async (req, res) => {
+    console.log('we are here in deleteAll')
+    try{
+        const ress= await Student.deleteMany({session:"2019-20"})
+        console.log("ress = ",ress)
+        res.status(200).send(ress)
+    }catch(e){
+        res.status(400).send(e)
+    }
+})
 
 router.delete('/:id', async(req, res) => {
     try {
