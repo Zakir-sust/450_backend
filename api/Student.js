@@ -2,6 +2,7 @@ let express = require('express'),
     multer = require('multer'),
     mongoose = require('mongoose'),
     uuidv4 = require('uuid/v4'),
+    sharp = require('sharp'),
     router = express.Router();
 const DIR = './public/';
 const Student = require('../db/Student');
@@ -13,15 +14,7 @@ const Departments = require('../db/Departments')
 const jwt = require('jsonwebtoken');
 const SALT_FACTOR = 10;
 
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, DIR);
-    },
-    filename: (req, file, cb) => {
-        const fileName = file.originalname.toLowerCase().split(' ').join('-');
-        cb(null, uuidv4() + '-' + fileName)
-    }
-});
+const storage = multer.memoryStorage();
 var upload = multer({
     storage: storage,
     fileFilter: (req, file, cb) => {
@@ -31,7 +24,7 @@ var upload = multer({
             cb(null, false);
             return cb(new Error('Only .png, .jpg and .jpeg format allowed!'));
         }
-    }
+    },
 });
 
 
@@ -179,7 +172,6 @@ router.post('/pass', async(req, res) => {
 })
 
 router.post('/add', upload.single('avatar'), async(req, res) => {
-    const url = req.protocol + '://' + req.get('host')
     const name = req.body.name;
     const email = req.body.email;
     const phone = req.body.phone;
@@ -192,7 +184,6 @@ router.post('/add', upload.single('avatar'), async(req, res) => {
     const session = req.body.session
     const status = false
     const secret = await jwt.sign({ email: email }, 'thisisnewstudent')
-    const avatar = url + '/public/' + req.file.filename
     let f = 0
 
     try {
@@ -211,6 +202,15 @@ router.post('/add', upload.single('avatar'), async(req, res) => {
         res.status(200).send('student exists')
         return
     }
+    let fileName = req.file.originalname.toLowerCase().split(' ').join('-');
+    filename=uuidv4() + '-' + fileName
+    const path = `./public/${filename}`;
+    console.log('file',req.file,path)
+
+    // toFile() method stores the image on disk
+    await sharp(req.file.buffer).resize(50,50).toFile(path);
+    const url = req.protocol + '://' + req.get('host')
+    const avatar = url + `/public/${filename}`
 
 
     const newStudent = new Student({ email, name, phone, secret, status, university, avatar, department, post, activated, password, registration_number, session });
@@ -244,8 +244,16 @@ router.post('/add', upload.single('avatar'), async(req, res) => {
 })
 
 router.patch('/avatar/:id', upload.single('avatar'), async(req, res) => {
+    let fileName = req.file.originalname.toLowerCase().split(' ').join('-');
+    filename=uuidv4() + '-' + fileName
+    const path = `./public/${filename}`;
+    console.log('file',req.file,path)
+
+    // toFile() method stores the image on disk
+    await sharp(req.file.buffer).resize(50,50).toFile(path);
     const url = req.protocol + '://' + req.get('host')
-    const avatar = url + '/public/' + req.file.filename
+    const avatar = url + `/public/${filename}`
+    let f = 0
     const object = { avatar: avatar }
     try {
         console.log(avatar, req.params.id)
@@ -257,7 +265,6 @@ router.patch('/avatar/:id', upload.single('avatar'), async(req, res) => {
         res.status(500).send(e.message)
     }
 })
-
 
 // router.post('/add', upload.single('avatar'), async(req, res) => {
 //     const name = req.body.name;
