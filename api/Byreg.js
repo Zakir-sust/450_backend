@@ -27,32 +27,66 @@ router.route('/srr').get((req, res) => {
         .catch(err => res.status(400).json('Error: ' + err));
 })
 
-router.route('/sr').patch((req, res) => {
+router.route('/sr').patch(async(req, res) => {
     const course_id = req.query.course_id;
     const section = req.query.section;
-    const registration_number = req.query.registration_number;
-    Byreg.find({ course_id: course_id, section: section, registration_number: registration_number })
-        .then(byreg => {
-            console.log('by registration', byreg)
-            byreg.map(async br => {
-                arr = br.record
-                console.log('arr', arr, req.body)
-                arr = arr.filter(ele => req.body.date != ele.date)
-                arr.push(req.body)
-                console.log(arr)
-                const chg = { record: arr }
-                console.log('chg', chg, br._id)
-                try {
-                    const bg = await Byreg.findByIdAndUpdate(br._id, chg, { new: true, runValidators: true })
-                    if (!bg)
-                        return res.status(404).send()
-                    res.status(200).send(bg)
-                } catch (e) {
-                    res.status(500).send(e.message)
-                }
+    //const registration_number = req.query.registration_number;
+    try {
+        const ress = await Byreg.find({ course_id: course_id, section: section })
+        let arr = ress
+        let brr = req.body
+        console.log(brr, 'brr')
+
+        arr.sort(function(a, b) {
+                if (a.registration_number < b.registration_number) return -1
+                else return 0
             })
-        })
-        .catch(err => res.status(400).json('Error: ' + err));
+            // console.log(arr, 'arr')
+        let i = 0,
+            j = 0
+        for (; i < arr.length && j < brr.length;) {
+            if (arr[i].registration_number == brr[j].registration_number) {
+                let rec = arr[i].record
+                    //  console.log(arr[i].registration_number, rec, 'rec')
+                rec = rec.filter(ele => ele.date != brr[j].date)
+                let pss = { date: brr[j].date }
+                rec.push(pss)
+                    // console.log(rec)
+                const chg = { record: rec }
+                const bg = await Byreg.findByIdAndUpdate(arr[i]._id, chg, { new: true, runValidators: true })
+                console.log(bg.registration_number)
+                j++
+            }
+            i++;
+        }
+        res.status(200).send('ok')
+    } catch (e) {
+        console.log('error while byreg find', e.message)
+        res.status(500).send(e.message)
+    }
+    //res.status(200).send('ok')
+    // Byreg.find({ course_id: course_id, section: section, registration_number: registration_number })
+    //     .then(byreg => {
+    //         console.log('by registration', byreg)
+    //         byreg.map(async br => {
+    //             arr = br.record
+    //             console.log('arr', arr, req.body)
+    //             arr = arr.filter(ele => req.body.date != ele.date)
+    //             arr.push(req.body)
+    //             console.log(arr)
+    //             const chg = { record: arr }
+    //             console.log('chg', chg, br._id)
+    //             try {
+    //                 const bg = await Byreg.findByIdAndUpdate(br._id, chg, { new: true, runValidators: true })
+    //                 if (!bg)
+    //                     return res.status(404).send()
+    //                 res.status(200).send(bg)
+    //             } catch (e) {
+    //                 res.status(500).send(e.message)
+    //             }
+    //         })
+    //     })
+    //     .catch(err => res.status(400).json('Error: ' + err));
 })
 
 router.route('/regd').patch((req, res) => {
@@ -84,31 +118,63 @@ router.route('/regd').patch((req, res) => {
 
 
 
-router.route('/srd').patch((req, res) => {
+router.route('/srd').patch(async(req, res) => {
     const course_id = req.query.course_id;
     const section = req.query.section;
-    const registration_number = req.query.registration_number;
-    Byreg.find({ course_id: course_id, section: section, registration_number: registration_number })
-        .then(byreg => {
-            console.log('by registration', byreg)
-            byreg.map(async br => {
-                arr = br.record
-                console.log('arr', arr, req.body)
-                arr = arr.filter(ele => req.body.date != ele.date)
-                console.log(arr)
-                const chg = { record: arr }
-                console.log('chg', chg, br._id)
-                try {
-                    const bg = await Byreg.findByIdAndUpdate(br._id, chg, { new: true, runValidators: true })
-                    if (!bg)
-                        return res.status(404).send()
-                    res.status(200).send(bg)
-                } catch (e) {
-                    res.status(500).send(e.message)
-                }
+    //const registration_number = req.query.registration_number;
+    try {
+        const ress = await Byreg.find({ course_id: course_id, section: section })
+        let arr = ress
+        let brr = req.body
+        console.log(brr, 'brr')
+
+        arr.sort(function(a, b) {
+                if (a.registration_number < b.registration_number) return -1
+                else return 0
             })
-        })
-        .catch(err => res.status(400).json('Error: ' + err));
+            // console.log(arr, 'arr')
+        let i = 0,
+            j = 0
+        for (; i < arr.length && j < brr.length;) {
+            if (arr[i].registration_number == brr[j].registration_number) {
+                let rec = arr[i].record
+                    //  console.log(arr[i].registration_number, rec, 'rec')
+                rec = rec.filter(ele => ele.date != brr[j].date)
+
+                // console.log(rec)
+                const chg = { record: rec }
+                const bg = await Byreg.findByIdAndUpdate(arr[i]._id, chg, { new: true, runValidators: true })
+                console.log(bg.registration_number)
+                j++
+            }
+            i++;
+        }
+        res.status(200).send('ok')
+    } catch (e) {
+        console.log('error while byreg find', e.message)
+        res.status(500).send(e.message)
+    }
+    // Byreg.find({ course_id: course_id, section: section, registration_number: registration_number })
+    //     .then(byreg => {
+    //         console.log('by registration', byreg)
+    //         byreg.map(async br => {
+    //             arr = br.record
+    //             console.log('arr', arr, req.body)
+    //             arr = arr.filter(ele => req.body.date != ele.date)
+    //             console.log(arr)
+    //             const chg = { record: arr }
+    //             console.log('chg', chg, br._id)
+    //             try {
+    //                 const bg = await Byreg.findByIdAndUpdate(br._id, chg, { new: true, runValidators: true })
+    //                 if (!bg)
+    //                     return res.status(404).send()
+    //                 res.status(200).send(bg)
+    //             } catch (e) {
+    //                 res.status(500).send(e.message)
+    //             }
+    //         })
+    //     })
+    //     .catch(err => res.status(400).json('Error: ' + err));
 })
 
 
